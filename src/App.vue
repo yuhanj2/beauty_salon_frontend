@@ -65,7 +65,7 @@
 <!--          <HelloWorld msg="Welcome to Your Vue.js App"/>-->
           <!-- If using vue-router -->
 <!--          <router-view></router-view>-->
-          <div v-if="currContent == 0"> 待办事项 </div>
+          <Todos v-if="currContent == 0"/>
           <Calendar v-if="currContent == 1"/>
           <div v-if="currContent == 2"> 文件输出 </div>
 
@@ -82,12 +82,14 @@
 
 <script>
 import Calendar from "@/components/Calendar";
+import Todos from "@/components/Todos";
 
 export default {
   name: 'App',
   data: () => ({}),
   components: {
     Calendar,
+    Todos,
   },
   computed: {
     institutionName() {

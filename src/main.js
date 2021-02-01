@@ -15,9 +15,8 @@ const vuetify = new Vuetify(vuetifyOpts);
 // vuex store setup
 const store = new Vuex.Store({
   state: {
-    // count: 0,
-    currContent: 0,
-    institutionName: "XX美容院",
+    currContent: 0, // 现在显示的主页面的内容，0：待办事项，1：日程，2：文件输出
+    institutionName: "XX美容院", // 机构名称，美容院的名字
     username: "员工 A",
     userPhoneNumber: "3193336006",
     cards: ['Today', 'Yesterday'],
@@ -26,14 +25,17 @@ const store = new Vuex.Store({
       ['mdi-calendar', '日程', 1],
       ['mdi-file', '文件输出', 2],
     ],
+    events: [],
+    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
+    names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
   },
   mutations: {
-    // increment (state) {
-    //   state.count++
-    // }
     changeCurrContent(state, content){
       state.currContent = content;
-    }
+    },
+    addNewEvent(state, newEvent){
+      state.events.push(newEvent);
+    },
   }
 })
 

@@ -82,7 +82,7 @@
             @click:event="showEvent"
             @click:more="viewDay"
             @click:date="viewDay"
-            @click:internal="addNewEvent"
+            @click:interval="addNewPrompt"
             @change="updateRange"
         ></v-calendar>
         <v-menu
@@ -103,14 +103,14 @@
               <v-btn icon>
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+              <v-toolbar-title v-html="selectedEvent.name ? selectedEvent.name : '添加新日程'"></v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn icon>
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </v-toolbar>
-            <v-card-text>
-              <span v-html="selectedEvent.details"></span>
+            <v-card-text v-if="selectedEvent.detail">
+              <span v-html="selectedEvent.detail"></span>
             </v-card-text>
             <v-card-actions>
               <v-btn
@@ -142,20 +142,32 @@ export default {
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
-    events: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-    names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
   }),
   mounted () {
     this.$refs.calendar.checkChange()
+  },
+  computed :{
+    colors() {
+      return this.$store.state.colors;
+    },
+    names() {
+      return this.$store.state.names;
+    },
+    events() {
+      return this.$store.state.events;
+    },
   },
   methods: {
     viewDay ({ date }) {
       this.focus = date
       this.type = 'day'
     },
-    addNewEvent({ date }){
+    addNewPrompt({ date }){
       console.log(date);
+      this.selectedElement = '#institutionName';
+      this.selectedEvent = {};
+      if(this.selectedOpen) this.selectedOpen = false;
+      else this.selectedOpen = true;
     },
     getEventColor (event) {
       return event.color
@@ -172,7 +184,8 @@ export default {
     showEvent ({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = event
-        this.selectedElement = nativeEvent.target
+        // console.log(nativeEvent.target)
+        this.selectedElement = nativeEvent.target // 生成对话框的初始位置
         setTimeout(() => {
           this.selectedOpen = true
         }, 10)
@@ -185,26 +198,37 @@ export default {
       }
       nativeEvent.stopPropagation()
     },
+    addNewEvent(newEvent){
+      this.$store.commit('addNewEvent', newEvent);
+    },
     updateRange ({ start, end }) {
       const events = []
       const min = new Date(`${start.date}T00:00:00`)
       const max = new Date(`${end.date}T23:59:59`)
-      const days = (max.getTime() - min.getTime()) / 86400000
-      const eventCount = this.rnd(days, days + 20)
+      // const days = (max.getTime() - min.getTime()) / 86400000
+      const eventCount = 5;// this.rnd(days, days + 20)
       for (let i = 0; i < eventCount; i++) {
         const allDay = this.rnd(0, 3) === 0
         const firstTimestamp = this.rnd(min.getTime(), max.getTime())
         const first = new Date(firstTimestamp - (firstTimestamp % 900000))
         const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
         const second = new Date(first.getTime() + secondTimestamp)
-        events.push({
+        // events.push({
+        //   name: this.names[this.rnd(0, this.names.length - 1)],
+        //   detail: "random shit",
+        //   start: first,
+        //   end: second,
+        //   color: this.colors[this.rnd(0, this.colors.length - 1)],
+        //   timed: !allDay,
+        // })
+        this.addNewEvent({
           name: this.names[this.rnd(0, this.names.length - 1)],
           detail: "random shit",
           start: first,
           end: second,
           color: this.colors[this.rnd(0, this.colors.length - 1)],
           timed: !allDay,
-        })
+        });
       }
       this.events = events
     },
